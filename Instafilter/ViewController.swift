@@ -70,6 +70,8 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate & UINavi
     
     
     @IBAction func save(_ sender: Any) {
+        guard let img = imageView.image else {return}
+        UIImageWriteToSavedPhotosAlbum(img, self, #selector(image), nil)
     }
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
@@ -108,6 +110,19 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate & UINavi
             let processedImage = UIImage(cgImage: cgImage)
             imageView.image = processedImage
         }
+    }
+    
+    @objc func image(_ image: UIImage, didFinishSavingWithError error: Error?, context: UnsafeRawPointer){
+        if let error = error {
+            let ac = UIAlertController(title: "Save Error", message: error.localizedDescription, preferredStyle: .alert)
+            ac.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+            present(ac, animated: true)
+        } else {
+            let ac = UIAlertController(title: "Saved", message: "Your altered image has been saved to your photos.", preferredStyle: .alert)
+            ac.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+            present(ac, animated: true)
+        }
+        
     }
     
 }
