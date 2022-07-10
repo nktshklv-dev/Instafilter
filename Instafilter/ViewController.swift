@@ -14,8 +14,10 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate & UINavi
     @IBOutlet var intensity: UISlider!
     var currentImage: UIImage!
     
+    @IBOutlet var changeFilterButton: UIButton!
     var context: CIContext!
     var currentFilter: CIFilter!
+     
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -50,6 +52,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate & UINavi
             popoverController.sourceView = sender
             popoverController.sourceRect = sender.bounds
         }
+        
         present(ac, animated: true)
         
         
@@ -64,13 +67,20 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate & UINavi
         
         let beginImage = CIImage(image: currentImage)
         currentFilter.setValue(beginImage, forKey: kCIInputImageKey)
+        changeFilterButton.titleLabel?.text = actionTitle
         applyProcessing()
     }
     
     
     
     @IBAction func save(_ sender: Any) {
-        guard let img = imageView.image else {return}
+        
+        guard let img = imageView.image else {
+            let ac = UIAlertController(title: "Error", message: "There is nothing to save.", preferredStyle: .alert)
+            ac.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+            present(ac, animated: true, completion: nil)
+            return
+        }
         UIImageWriteToSavedPhotosAlbum(img, self, #selector(image), nil)
     }
     
@@ -81,6 +91,9 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate & UINavi
         
         let beginImage = CIImage(image: currentImage)
         currentFilter.setValue(beginImage, forKey: kCIInputImageKey)
+        UIView.animate(withDuration: 1, delay: 0, options: []) {
+            self.imageView.alpha = 0
+        }
         applyProcessing()
     }
     
@@ -108,7 +121,12 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate & UINavi
         
         if let cgImage = context.createCGImage(outputImage, from: outputImage.extent){
             let processedImage = UIImage(cgImage: cgImage)
+          
+
             imageView.image = processedImage
+            UIView.animate(withDuration: 1, delay: 0, options: []) {
+                self.imageView.alpha = 1
+            }
         }
     }
     
